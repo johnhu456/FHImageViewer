@@ -7,6 +7,7 @@
 //
 
 #import "DemoTableViewController.h"
+#import "FHImageViewerController.h"
 
 @interface DemoTableViewController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -67,6 +68,20 @@ static CGFloat const kCellHeight = 100.f;
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     return kCellHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSArray *imageArray = @[ImageInName(self.imageDataArray[0]),
+                            ImageInName(self.imageDataArray[1]),
+                            ImageInName(self.imageDataArray[2]),
+                            ImageInName(self.imageDataArray[3]),
+                            ImageInName(self.imageDataArray[4]),
+                            ImageInName(self.imageDataArray[5]),
+                            ImageInName(self.imageDataArray[6])
+                            ];
+    FHImageViewerController *vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame imagesArray:imageArray];
+    [vc showInViewController:self withAnimated:YES];
 }
 
 - (void)didReceiveMemoryWarning {

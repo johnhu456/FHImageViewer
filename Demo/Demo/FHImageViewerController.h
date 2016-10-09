@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-@interface FHImageViewerController : UICollectionViewController
+@interface FHImageViewerController : UIViewController
+
+- (instancetype)initWithFrame:(CGRect)frame imagesArray:(NSArray *)array;
+
+- (void)showInViewController:(UIViewController *)viewController withAnimated:(BOOL)animated;
 
 @end

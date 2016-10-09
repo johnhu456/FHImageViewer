@@ -7,25 +7,65 @@
 //
 
 #import "FHImageViewerController.h"
+#import "FHImageViewerCollectionView.h"
+#import "FHImageViewerCell.h"
 
-@interface FHImageViewerController ()
+@interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource>
 
+@property (nonatomic, strong) NSArray *imagesArray;
+
+@property (nonatomic, strong) FHImageViewerCollectionView *viewerCollectionView;
 @end
 
 @implementation FHImageViewerController
 
-static NSString * const reuseIdentifier = @"imageCell";
+static NSString * const kReuseIdentifier = @"imageCell";
+
+#pragma mark - Initialize
+- (instancetype)initWithFrame:(CGRect)frame imagesArray:(NSArray *)array
+{
+    if (self = [super init]) {
+        self.view.frame = frame;
+        self.imagesArray = array;
+        [self defaultInitialize];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        [self defaultInitialize];
+    }
+    return self;
+}
+
+- (instancetype)init
+{
+    if (self = [super init]) {
+        [self defaultInitialize];
+    }
+    return self;
+}
+
+- (void)defaultInitialize
+{
+
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    // Uncomment the following line to preserve selection between presentations
-    // self.clearsSelectionOnViewWillAppear = NO;
-    
-    // Register cell classes
-    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
-    
-    // Do any additional setup after loading the view.
+    [self setupFHImageViewerCollectionView];
+}
+
+- (void)setupFHImageViewerCollectionView{
+    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray];
+    [self.viewerCollectionView setCellInterval:10.f];
+    self.viewerCollectionView.delegate = self;
+    self.viewerCollectionView.dataSource = self;
+    [self.viewerCollectionView registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kReuseIdentifier];
+    [self.view addSubview:self.viewerCollectionView];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -45,23 +85,41 @@ static NSString * const reuseIdentifier = @"imageCell";
 
 #pragma mark <UICollectionViewDataSource>
 
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-#warning Incomplete implementation, return the number of sections
-    return 0;
+//- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+//#warning Incomplete implementation, return the number of sections
+//    return 0;
+//}
+//
+//
+//- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+//#warning Incomplete implementation, return the number of items
+//    return 0;
+//}
+//
+//- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+//    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+//    
+//    // Configure the cell
+//    
+//    return cell;
+//}
+#pragma mark - UICollectionViewDataSource
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
+{
+    return 1;
 }
 
-
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-#warning Incomplete implementation, return the number of items
-    return 0;
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    return self.imagesArray.count;
 }
 
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
-    
-    // Configure the cell
-    
-    return cell;
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    FHImageViewerCell *imageCell = [collectionView dequeueReusableCellWithReuseIdentifier:kReuseIdentifier forIndexPath:indexPath];
+    imageCell.image = _imagesArray[indexPath.row];
+    return imageCell;
 }
 
 #pragma mark <UICollectionViewDelegate>
@@ -94,5 +152,14 @@ static NSString * const reuseIdentifier = @"imageCell";
 	
 }
 */
+#pragma mark - PublicMethod
+- (void)showInViewController:(UIViewController *)viewController withAnimated:(BOOL)animated
+{
+    if (self.view == nil) {
+        [self loadView];
+    }
+    [viewController addChildViewController:self];
+    [viewController.view addSubview:self.view];
+}
 
 @end

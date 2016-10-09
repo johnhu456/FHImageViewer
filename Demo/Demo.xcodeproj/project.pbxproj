@@ -17,6 +17,8 @@
 		E0DFA6FC1DAA179E000FEF1D /* DemoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = E0DFA6FB1DAA179E000FEF1D /* DemoUITests.m */; };
 		E0DFA7111DAA228A000FEF1D /* DemoTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E0DFA7101DAA2289000FEF1D /* DemoTableViewController.m */; };
 		E0DFA7141DAA2C70000FEF1D /* FHImageViewerController.m in Sources */ = {isa = PBXBuildFile; fileRef = E0DFA7131DAA2C70000FEF1D /* FHImageViewerController.m */; };
+		E0DFA7181DAA32EC000FEF1D /* FHImageViewerCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = E0DFA7171DAA32EC000FEF1D /* FHImageViewerCollectionView.m */; };
+		E0DFA71B1DAA3301000FEF1D /* FHImageViewerCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E0DFA71A1DAA3301000FEF1D /* FHImageViewerCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +61,10 @@
 		E0DFA7101DAA2289000FEF1D /* DemoTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoTableViewController.m; sourceTree = "<group>"; };
 		E0DFA7121DAA2C70000FEF1D /* FHImageViewerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FHImageViewerController.h; sourceTree = "<group>"; };
 		E0DFA7131DAA2C70000FEF1D /* FHImageViewerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FHImageViewerController.m; sourceTree = "<group>"; };
+		E0DFA7161DAA32EC000FEF1D /* FHImageViewerCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FHImageViewerCollectionView.h; sourceTree = "<group>"; };
+		E0DFA7171DAA32EC000FEF1D /* FHImageViewerCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FHImageViewerCollectionView.m; sourceTree = "<group>"; };
+		E0DFA7191DAA3301000FEF1D /* FHImageViewerCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FHImageViewerCell.h; sourceTree = "<group>"; };
+		E0DFA71A1DAA3301000FEF1D /* FHImageViewerCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FHImageViewerCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +188,10 @@
 		E0DFA7151DAA2C8E000FEF1D /* SupportFile */ = {
 			isa = PBXGroup;
 			children = (
+				E0DFA7191DAA3301000FEF1D /* FHImageViewerCell.h */,
+				E0DFA71A1DAA3301000FEF1D /* FHImageViewerCell.m */,
+				E0DFA7161DAA32EC000FEF1D /* FHImageViewerCollectionView.h */,
+				E0DFA7171DAA32EC000FEF1D /* FHImageViewerCollectionView.m */,
 			);
 			name = SupportFile;
 			sourceTree = "<group>";
@@ -319,10 +329,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0DFA71B1DAA3301000FEF1D /* FHImageViewerCell.m in Sources */,
 				E0DFA7111DAA228A000FEF1D /* DemoTableViewController.m in Sources */,
 				E0DFA6DE1DAA179E000FEF1D /* ViewController.m in Sources */,
 				E0DFA6DB1DAA179E000FEF1D /* AppDelegate.m in Sources */,
 				E0DFA7141DAA2C70000FEF1D /* FHImageViewerController.m in Sources */,
+				E0DFA7181DAA32EC000FEF1D /* FHImageViewerCollectionView.m in Sources */,
 				E0DFA6D81DAA179E000FEF1D /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
