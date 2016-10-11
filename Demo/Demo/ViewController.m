@@ -80,6 +80,8 @@ static NSString *const kCellReuseIdentifier = @"cellReuseIdentifier";
 - (void)handleButtonTableViewOnClick
 {
     DemoTableViewController *demoTableVC = [[DemoTableViewController alloc] init];
+//    [self addChildViewController:demoTableVC];
+//    [self.view addSubview:demoTableVC.view];
     [self.navigationController pushViewController:demoTableVC animated:YES];
 }
 

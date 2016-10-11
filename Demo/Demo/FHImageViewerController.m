@@ -11,6 +11,9 @@
 #import "FHImageViewerCell.h"
 
 @interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource>
+{
+    NSInteger _selectedIndex;
+}
 
 @property (nonatomic, strong) NSArray *imagesArray;
 
@@ -22,11 +25,12 @@
 static NSString * const kReuseIdentifier = @"imageCell";
 
 #pragma mark - Initialize
-- (instancetype)initWithFrame:(CGRect)frame imagesArray:(NSArray *)array
+- (instancetype)initWithFrame:(CGRect)frame imagesArray:(NSArray *)array selectedIndex:(NSInteger)selectedIndex
 {
     if (self = [super init]) {
         self.view.frame = frame;
         self.imagesArray = array;
+        _selectedIndex = selectedIndex;
         [self defaultInitialize];
     }
     return self;
@@ -50,20 +54,20 @@ static NSString * const kReuseIdentifier = @"imageCell";
 
 - (void)defaultInitialize
 {
-
+    [self setupFHImageViewerCollectionView];
 }
 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self setupFHImageViewerCollectionView];
 }
 
 - (void)setupFHImageViewerCollectionView{
-    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray];
+    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray selectedIndex:_selectedIndex];
     [self.viewerCollectionView setCellInterval:10.f];
     self.viewerCollectionView.delegate = self;
     self.viewerCollectionView.dataSource = self;
+    [self.viewerCollectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:_selectedIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
     [self.viewerCollectionView registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kReuseIdentifier];
     [self.view addSubview:self.viewerCollectionView];
 }
@@ -158,8 +162,10 @@ static NSString * const kReuseIdentifier = @"imageCell";
     if (self.view == nil) {
         [self loadView];
     }
-    [viewController addChildViewController:self];
-    [viewController.view addSubview:self.view];
+//    [viewController.parentViewController addChildViewController:self];
+    [viewController.navigationController pushViewController:self animated:YES];
+//    [self.parentViewController transitionFromViewController:viewController toViewController:self duration:1.f options:UIViewAnimationOptionTransitionCurlUp animations:nil completion:nil];
+//    [viewController presentViewController:self animated:YES completion:nil];
 }
 
 @end

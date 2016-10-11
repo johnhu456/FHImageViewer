@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import <CoreText/CoreText.h>
 
 @interface AppDelegate ()
 
@@ -17,6 +18,21 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    NSMutableDictionary *fontAttrs = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"PingFangSC", kCTFontNameAttribute, nil];
+    CTFontDescriptorRef desc = CTFontDescriptorCreateWithAttributes((__bridge CFDictionaryRef)fontAttrs);
+    NSMutableArray *descArray = [NSMutableArray new];
+    [descArray addObject:(__bridge id)desc];
+    CFRelease(desc);
+    //封装成一个CF的字体对象
+    
+    //将对象传入，进行下载
+    CTFontDescriptorMatchFontDescriptorsWithProgressHandler((__bridge CFArrayRef)descArray, NULL, ^bool(CTFontDescriptorMatchingState state, CFDictionaryRef  _Nonnull progressParameter) {
+        NSDictionary *progressDic = (__bridge NSDictionary *)progressParameter;
+        NSLog(@"state: %u",state);
+        NSLog(@"progress: %@",progressDic);
+        return YES;
+    });
+    NSLog(@"=======%@",[UIFont fontNamesForFamilyName:@"PingFangSC"]);
     return YES;
 }
 

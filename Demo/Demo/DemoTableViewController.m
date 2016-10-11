@@ -9,7 +9,7 @@
 #import "DemoTableViewController.h"
 #import "FHImageViewerController.h"
 
-@interface DemoTableViewController ()<UITableViewDelegate,UITableViewDataSource>
+@interface DemoTableViewController ()<UITableViewDelegate,UITableViewDataSource,UINavigationControllerDelegate>
 
 @property (nonatomic, strong) NSArray *imageDataArray;
 
@@ -34,6 +34,7 @@ static CGFloat const kCellHeight = 100.f;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupTableView];
+    self.navigationController.delegate = self;
     // Do any additional setup after loading the view.
 }
 
@@ -80,13 +81,23 @@ static CGFloat const kCellHeight = 100.f;
                             ImageInName(self.imageDataArray[5]),
                             ImageInName(self.imageDataArray[6])
                             ];
-    FHImageViewerController *vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame imagesArray:imageArray];
+    FHImageViewerController *vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame imagesArray:imageArray selectedIndex:indexPath.row];
     [vc showInViewController:self withAnimated:YES];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController animationControllerForOperation:(UINavigationControllerOperation)operation fromViewController:(UIViewController *)fromVC toViewController:(UIViewController *)toVC
+{
+    if ([toVC isKindOfClass:[FHImageViewerController class]]) {
+        UITableViewCell *transiFromCell = [self.tableView cellForRowAtIndexPath:[self.tableView indexPathForSelectedRow]];
+        return [[FHImageViewerTransition alloc] initWithTranFromView:transiFromCell.imageView];
+    }else{
+        return nil;
+    }
 }
 
 /*

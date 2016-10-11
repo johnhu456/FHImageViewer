@@ -22,7 +22,7 @@ static CGFloat kPageControlHeight = 25.f;
 
 @implementation FHImageViewerCollectionView
 
-- (instancetype)initWithFrame:(CGRect)frame andImagesArray:(NSArray *)imagesArray;
+- (instancetype)initWithFrame:(CGRect)frame andImagesArray:(NSArray *)imagesArray selectedIndex:(NSInteger)selectedIndex;
 {
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
     flowLayout.minimumLineSpacing = 0.f;
@@ -30,6 +30,7 @@ static CGFloat kPageControlHeight = 25.f;
     flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     if (self = [super initWithFrame:frame collectionViewLayout:flowLayout]) {
         self.imagesArray = [imagesArray copy];
+        _currentIndex = selectedIndex;
         [self initialize];
     }
     return self;
@@ -78,25 +79,6 @@ static CGFloat kPageControlHeight = 25.f;
     }
     [self.superview insertSubview:self.pageControl aboveSubview:self];
 }
-
-//#pragma mark - UICollectionViewDataSource
-//
-//- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
-//{
-//    return 1;
-//}
-//
-//- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
-//{
-//    return self.imagesArray.count;
-//}
-//
-//- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    FHImageViewerCell *imageCell = [collectionView dequeueReusableCellWithReuseIdentifier:kFHImageViewerCellReuseIdentifier forIndexPath:indexPath];
-//    imageCell.image = _imagesArray[indexPath.row];
-//    return imageCell;
-//}
 
 #pragma mark - UIScrollviewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView

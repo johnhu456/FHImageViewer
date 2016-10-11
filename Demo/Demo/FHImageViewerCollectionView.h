@@ -28,6 +28,6 @@ static NSString *const kFHImageViewerCellReuseIdentifier = @"FHImageViewerCellRe
 
 @property (nonatomic, weak) id<FHImageViewerCollectionDelegate> imageViewerDelegate;
 
-- (instancetype)initWithFrame:(CGRect)frame andImagesArray:(NSArray *)imagesArray;
+- (instancetype)initWithFrame:(CGRect)frame andImagesArray:(NSArray *)imagesArray selectedIndex:(NSInteger)selectedIndex;
 
 @end
