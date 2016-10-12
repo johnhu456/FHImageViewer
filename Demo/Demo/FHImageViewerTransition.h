@@ -10,13 +10,13 @@
 
 @interface FHImageViewerTransition : NSObject<UIViewControllerAnimatedTransitioning>
 /**The beginning UIView of the animation, 
-    you should exactly assign the UIView where you want starting transition to the transFromViw property.
+    you should exactly assign the UIImageView where you want starting transition to the transFromViw property.
     For example, pass the imageView in selelcted cell to transFromView:
     e.g.
     [FHImageViewerTransition alloc] initWithTranFromView:selectedCell.imageView];
  */
-@property (nonatomic, weak) UIView *transFromView;
+@property (nonatomic, weak) UIImageView *transFromView;
 
-- (instancetype)initWithTranFromView:(UIView *)transFromView;
+- (instancetype)initWithTranFromView:(UIImageView *)transFromView;
 
 @end

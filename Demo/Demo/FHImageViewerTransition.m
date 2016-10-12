@@ -8,10 +8,11 @@
 
 #import "FHImageViewerTransition.h"
 
-static CGFloat const kAnimationDuration = 0.2f;
+static CGFloat const kAnimationDuration = 0.5f;
+static CGFloat const kNavigationHeight = 64.f;
 @implementation FHImageViewerTransition
 
-- (instancetype)initWithTranFromView:(UIView *)transFromView
+- (instancetype)initWithTranFromView:(UIImageView *)transFromView
 {
     if (self = [super init]) {
         self.transFromView = transFromView;
@@ -62,13 +63,24 @@ static CGFloat const kAnimationDuration = 0.2f;
         toVC.view.frame = [transitionContext finalFrameForViewController:toVC];
         toVC.view.alpha = 0;
         //Add two views to containView
+        
         [containerView addSubview:snapShotView];
         [containerView addSubview:toVC.view];
-        
+
+        //Calculate the ending View's size according to the image size
+        UIWindow *window = [UIApplication sharedApplication].windows.lastObject;
+        CGFloat imageHeight = window.frame.size.width * self.transFromView.image.size.height/self.transFromView.image.size.width;
+        CGRect endingSize;
+        if (toVC.navigationController && toVC.navigationController.navigationBarHidden == NO){
+            endingSize = CGRectMake(0, (window.frame.size.height - imageHeight + kNavigationHeight)/2.f, window.frame.size.width , imageHeight);
+        }else{
+            endingSize = CGRectMake(0, (window.frame.size.height - imageHeight)/2.f,  window.frame.size.width, imageHeight);
+        }
+ 
         //Animation
         [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
             toVC.view.alpha = 1;
-            snapShotView.frame = toVC.view.frame;
+            snapShotView.frame = endingSize;
         } completion:^(BOOL finished) {
             snapShotView.hidden = YES;
         }];

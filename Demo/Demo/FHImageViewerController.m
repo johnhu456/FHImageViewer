@@ -64,6 +64,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
 
 - (void)setupFHImageViewerCollectionView{
     self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray selectedIndex:_selectedIndex];
+    self.viewerCollectionView.hidePageControl = YES;
     [self.viewerCollectionView setCellInterval:10.f];
     self.viewerCollectionView.delegate = self;
     self.viewerCollectionView.dataSource = self;
