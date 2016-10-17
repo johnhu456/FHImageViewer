@@ -48,7 +48,6 @@
 - (void)initialize
 {
     UIWindow *window = [UIApplication sharedApplication].windows.lastObject;
-    _parallaxDistance = 0.f; /**视差距离默认*/
     _enlarge = NO; /**是否放大状态*/
     
     _imageScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, window.frame.size.width, self.bounds.size.height)];
@@ -133,6 +132,12 @@
     zoomRect.origin.x = center.x - (zoomRect.size.width  /2.0);
     zoomRect.origin.y = center.y - (zoomRect.size.height /2.0);
     return zoomRect;
+}
+
+- (void)prepareForReuse
+{
+    [super prepareForReuse];
+    _imageView.transform = CGAffineTransformMakeTranslation(0, 0);
 }
 
 @end

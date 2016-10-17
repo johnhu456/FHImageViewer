@@ -82,6 +82,8 @@ static CGFloat const kCellHeight = 100.f;
                             ImageInName(self.imageDataArray[6])
                             ];
     FHImageViewerController *vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame imagesArray:imageArray selectedIndex:indexPath.row];
+    vc.parallaxDistance = 20.f;
+    vc.cellInterval = 10.f;
     [vc showInViewController:self withAnimated:YES];
 }
 

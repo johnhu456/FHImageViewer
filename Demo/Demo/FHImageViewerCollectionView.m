@@ -9,7 +9,7 @@
 #import "FHImageViewerCollectionView.h"
 #import "FHImageviewerCell.h"
 
-@interface FHImageViewerCollectionView()
+@interface FHImageViewerCollectionView()<UIScrollViewDelegate>
 {
     NSInteger _currentIndex;
 }
@@ -39,8 +39,6 @@ static CGFloat kPageControlHeight = 25.f;
 - (void)initialize
 {
     self.pagingEnabled = YES;
-    _cellInterval = 10.f;
-    _currentIndex = 0;
     self.showsHorizontalScrollIndicator = NO;
     self.frame = CGRectMake(0, 0, self.frame.size.width + _cellInterval, self.frame.size.height);
     [self registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kFHImageViewerCellReuseIdentifier];
@@ -78,24 +76,6 @@ static CGFloat kPageControlHeight = 25.f;
         self.pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
     }
     [self.superview insertSubview:self.pageControl aboveSubview:self];
-}
-
-#pragma mark - UIScrollviewDelegate
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    UIWindow *window = [UIApplication sharedApplication].windows.lastObject;
-    //视差处理
-    if (_parallax){
-        NSArray *cells = [self visibleCells];
-        for (FHImageViewerCell *cell in cells) {
-            CGFloat value;
-            value = 40 * (cell.frame.origin.x - self.contentOffset.x)/window.frame.size.width/1.f;
-            [cell setParallaxValue:value];
-        }
-    }
-    //pageControl处理
-    NSInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
-    self.pageControl.currentPage = index;
 }
 
 #pragma mark - UIGestureRecognizer

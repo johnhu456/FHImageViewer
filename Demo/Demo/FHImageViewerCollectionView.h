@@ -17,8 +17,8 @@
 static NSString *const kFHImageViewerCellReuseIdentifier = @"FHImageViewerCellReuseIdentifier";
 
 @interface FHImageViewerCollectionView : UICollectionView
-/**是否开启视差*/
-@property (nonatomic, assign, getter=isParallax) BOOL parallax;
+
+@property (nonatomic, assign) CGFloat parallaxDistance;
 /**图片间隔*/
 @property (nonatomic, assign) CGFloat cellInterval; //Default is 10.f;
 /**分页控制器*/

@@ -52,6 +52,18 @@ static NSString * const kReuseIdentifier = @"imageCell";
     return self;
 }
 
+- (void)setParallaxDistance:(CGFloat)parallaxDistance
+{
+    _parallaxDistance = parallaxDistance;
+    self.viewerCollectionView.parallaxDistance = _parallaxDistance;
+}
+
+- (void)setCellInterval:(CGFloat)cellInterval
+{
+    _cellInterval = cellInterval;
+    self.viewerCollectionView.cellInterval = _cellInterval;
+}
+
 - (void)defaultInitialize
 {
     [self setupFHImageViewerCollectionView];
@@ -65,7 +77,8 @@ static NSString * const kReuseIdentifier = @"imageCell";
 - (void)setupFHImageViewerCollectionView{
     self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray selectedIndex:_selectedIndex];
     self.viewerCollectionView.hidePageControl = YES;
-    [self.viewerCollectionView setCellInterval:10.f];
+    self.viewerCollectionView.parallaxDistance = self.parallaxDistance;
+    self.viewerCollectionView.cellInterval = self.cellInterval;
     self.viewerCollectionView.delegate = self;
     self.viewerCollectionView.dataSource = self;
     [self.viewerCollectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:_selectedIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
@@ -124,11 +137,28 @@ static NSString * const kReuseIdentifier = @"imageCell";
 {
     FHImageViewerCell *imageCell = [collectionView dequeueReusableCellWithReuseIdentifier:kReuseIdentifier forIndexPath:indexPath];
     imageCell.image = _imagesArray[indexPath.row];
+    imageCell.parallaxDistance = self.parallaxDistance;
     return imageCell;
 }
 
 #pragma mark <UICollectionViewDelegate>
-
+#pragma mark - UIScrollviewDelegate
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    UIWindow *window = [UIApplication sharedApplication].windows.lastObject;
+    //set cell's parallax
+    if (self.parallaxDistance > 0){
+        NSArray *cells = [self.viewerCollectionView visibleCells];
+        for (FHImageViewerCell *cell in cells) {
+            CGFloat value;
+            value = 40 * (cell.frame.origin.x - self.viewerCollectionView.contentOffset.x)/window.frame.size.width/1.f;
+            [cell setParallaxValue:value];
+        }
+    }
+    //pageControl处理
+    NSInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
+    self.viewerCollectionView.pageControl.currentPage = index;
+}
 /*
 // Uncomment this method to specify if the specified item should be highlighted during tracking
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath {

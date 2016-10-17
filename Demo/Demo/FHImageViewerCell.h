@@ -10,11 +10,11 @@
 
 @interface FHImageViewerCell : UICollectionViewCell
 
-/**视差范围*/
+/**default is 0*/
 @property (nonatomic, assign) CGFloat parallaxDistance;
-/**图片*/
+
 @property (nonatomic, strong) UIImage *image;
-/**调整视差*/
+
 - (void)setParallaxValue:(CGFloat)value;
 
 @end
