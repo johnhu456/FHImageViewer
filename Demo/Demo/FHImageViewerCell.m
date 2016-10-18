@@ -11,7 +11,6 @@
 @interface FHImageViewerCell()<UIScrollViewDelegate>
 {
     UIScrollView *_imageScrollView;
-    UIImageView *_imageView;
     UIView *_imageMaskView;
     UITapGestureRecognizer *_doubleTapGestureRecognizer;
     BOOL _enlarge;

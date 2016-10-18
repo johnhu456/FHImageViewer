@@ -19,11 +19,11 @@ static NSString *const kFHImageViewerCellReuseIdentifier = @"FHImageViewerCellRe
 @interface FHImageViewerCollectionView : UICollectionView
 
 @property (nonatomic, assign) CGFloat parallaxDistance;
-/**图片间隔*/
+
 @property (nonatomic, assign) CGFloat cellInterval; //Default is 10.f;
-/**分页控制器*/
+
 @property (nonatomic, strong) UIPageControl *pageControl;
-/**分页控制器隐藏*/
+
 @property (nonatomic, assign, getter=isPageControlHidden) BOOL hidePageControl;
 
 @property (nonatomic, weak) id<FHImageViewerCollectionDelegate> imageViewerDelegate;

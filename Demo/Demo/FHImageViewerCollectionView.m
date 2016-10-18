@@ -58,11 +58,14 @@ static CGFloat kPageControlHeight = 25.f;
     self.frame = CGRectMake(0, 0, window.frame.size.width + _cellInterval, window.frame.size.height);
     UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
     flowLayout.itemSize = CGSizeMake(self.frame.size.width, self.frame.size.height);
+    [self scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:_currentIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
+    [self.collectionViewLayout invalidateLayout];
 }
 
 - (void)didMoveToSuperview
 {
     [self setupPageControl];
+    [self scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:_currentIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
 }
 
 - (void)setupPageControl

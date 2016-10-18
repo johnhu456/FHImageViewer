@@ -95,11 +95,15 @@ static CGFloat const kCellHeight = 100.f;
 - (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController animationControllerForOperation:(UINavigationControllerOperation)operation fromViewController:(UIViewController *)fromVC toViewController:(UIViewController *)toVC
 {
     if ([toVC isKindOfClass:[FHImageViewerController class]]) {
-        UITableViewCell *transiFromCell = [self.tableView cellForRowAtIndexPath:[self.tableView indexPathForSelectedRow]];
-        return [[FHImageViewerTransition alloc] initWithTranFromView:transiFromCell.imageView];
-    }else{
+        UITableViewCell *transFromCell = [self.tableView cellForRowAtIndexPath:[self.tableView indexPathForSelectedRow]];
+        return [[FHImageViewerTransition alloc] initWithTranFromView:transFromCell.imageView];
+    }else if ([fromVC isKindOfClass:[FHImageViewerController class]]){
+        FHImageViewerController *imageViewController = (FHImageViewerController *)fromVC;
+        NSIndexPath *selectedIndexPath = [NSIndexPath indexPathForRow:imageViewController.selectedIndex inSection:0];
+        FHImageViewerCell *transFromCell = (FHImageViewerCell *)[imageViewController.viewerCollectionView cellForItemAtIndexPath:selectedIndexPath];
+        return [[FHImageViewerTransition alloc] initWithTranFromView:transFromCell.imageView];
+    }else
         return nil;
-    }
 }
 
 /*

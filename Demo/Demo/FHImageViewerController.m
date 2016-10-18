@@ -7,17 +7,16 @@
 //
 
 #import "FHImageViewerController.h"
-#import "FHImageViewerCollectionView.h"
 #import "FHImageViewerCell.h"
 
 @interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource>
-{
-    NSInteger _selectedIndex;
-}
 
 @property (nonatomic, strong) NSArray *imagesArray;
 
-@property (nonatomic, strong) FHImageViewerCollectionView *viewerCollectionView;
+@property (nonatomic, strong, readwrite) FHImageViewerCollectionView *viewerCollectionView;
+
+@property (nonatomic, assign, readwrite) NSInteger selectedIndex;
+
 @end
 
 @implementation FHImageViewerController
@@ -30,7 +29,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
     if (self = [super init]) {
         self.view.frame = frame;
         self.imagesArray = array;
-        _selectedIndex = selectedIndex;
+        self.selectedIndex = selectedIndex;
         [self defaultInitialize];
     }
     return self;
@@ -67,6 +66,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
 - (void)defaultInitialize
 {
     [self setupFHImageViewerCollectionView];
+    [self setupResignGestureRecognizer];
 }
 
 
@@ -75,15 +75,19 @@ static NSString * const kReuseIdentifier = @"imageCell";
 }
 
 - (void)setupFHImageViewerCollectionView{
-    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray selectedIndex:_selectedIndex];
+    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray selectedIndex:self.selectedIndex];
+    self.viewerCollectionView.delegate = self;
+    self.viewerCollectionView.dataSource = self;
     self.viewerCollectionView.hidePageControl = YES;
     self.viewerCollectionView.parallaxDistance = self.parallaxDistance;
     self.viewerCollectionView.cellInterval = self.cellInterval;
-    self.viewerCollectionView.delegate = self;
-    self.viewerCollectionView.dataSource = self;
-    [self.viewerCollectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:_selectedIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
     [self.viewerCollectionView registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kReuseIdentifier];
     [self.view addSubview:self.viewerCollectionView];
+}
+
+- (void)setupResignGestureRecognizer{
+    UITapGestureRecognizer *resignTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(resignSelf)];
+    [self.view addGestureRecognizer:resignTapGestureRecognizer];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -158,6 +162,13 @@ static NSString * const kReuseIdentifier = @"imageCell";
     //pageControl处理
     NSInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
     self.viewerCollectionView.pageControl.currentPage = index;
+    self.selectedIndex = index;
+}
+
+#pragma mark - PrivateMethod
+- (void)resignSelf
+{
+    [self.navigationController popViewControllerAnimated:YES];
 }
 /*
 // Uncomment this method to specify if the specified item should be highlighted during tracking
@@ -193,10 +204,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
     if (self.view == nil) {
         [self loadView];
     }
-//    [viewController.parentViewController addChildViewController:self];
     [viewController.navigationController pushViewController:self animated:YES];
-//    [self.parentViewController transitionFromViewController:viewController toViewController:self duration:1.f options:UIViewAnimationOptionTransitionCurlUp animations:nil completion:nil];
-//    [viewController presentViewController:self animated:YES completion:nil];
 }
 
 @end

@@ -15,6 +15,8 @@
 
 @property (nonatomic, strong) UIImage *image;
 
+@property (nonatomic, strong) UIImageView *imageView;
+
 - (void)setParallaxValue:(CGFloat)value;
 
 @end
