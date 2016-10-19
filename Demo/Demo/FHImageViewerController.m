@@ -9,14 +9,27 @@
 #import "FHImageViewerController.h"
 #import "FHImageViewerCell.h"
 
-@interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource>
+@interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate>
+/**Delegate Flag*/
+{
+    struct{
+        unsigned int totalImageNumberFlag:1;
+        unsigned int imageViewIndexFlag:1;
+        unsigned int originalImageIndexFlag:1;
+    }_delegateFlag;
+    
+    BOOL _isShowing;
+}
 
-@property (nonatomic, strong) NSArray *imagesArray;
-
+#pragma mark - Public Property
 @property (nonatomic, strong, readwrite) FHImageViewerCollectionView *viewerCollectionView;
 
-@property (nonatomic, assign, readwrite) NSInteger selectedIndex;
+@property (nonatomic, assign, readwrite) NSInteger currentIndex;
 
+@property (nonatomic, strong, readwrite) FHImageViewerTransition *transition;
+
+#pragma mark - Private Property
+@property (nonatomic, strong) UITapGestureRecognizer *tapToPopGesture;
 @end
 
 @implementation FHImageViewerController
@@ -24,12 +37,11 @@
 static NSString * const kReuseIdentifier = @"imageCell";
 
 #pragma mark - Initialize
-- (instancetype)initWithFrame:(CGRect)frame imagesArray:(NSArray *)array selectedIndex:(NSInteger)selectedIndex
+- (instancetype)initWithFrame:(CGRect)frame currentIndex:(NSInteger)currentIndex
 {
     if (self = [super init]) {
         self.view.frame = frame;
-        self.imagesArray = array;
-        self.selectedIndex = selectedIndex;
+        self.currentIndex = currentIndex;
         [self defaultInitialize];
     }
     return self;
@@ -51,6 +63,66 @@ static NSString * const kReuseIdentifier = @"imageCell";
     return self;
 }
 
+- (void)defaultInitialize
+{
+    [self setupFHImageViewerCollectionView];
+    [self setupResignGestureRecognizer];
+}
+
+//Set the FHImageViewCollectionView
+- (void)setupFHImageViewerCollectionView{
+    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray: @[ImageInName(@"0"),
+                                                                                                                     ImageInName(@"1"),
+                                                                                                                     ImageInName(@"2"),
+                                                                                                                     ImageInName(@"3"),
+                                                                                                                     ImageInName(@"4"),
+                                                                                                                     ImageInName(@"5"),
+                                                                                                                     ImageInName(@"6")
+                                                                                                                     ] selectedIndex:self.currentIndex];
+    self.viewerCollectionView.delegate = self;
+    self.viewerCollectionView.dataSource = self;
+    [self.viewerCollectionView registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kReuseIdentifier];
+    [self.view addSubview:self.viewerCollectionView];
+}
+
+//Add a tap gestureRecognizer, tap to pop
+- (void)setupResignGestureRecognizer{
+    UITapGestureRecognizer *resignTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popSelf)];
+    [self.view addGestureRecognizer:resignTapGestureRecognizer];
+}
+
+#pragma mark - Lazt Init
+- (UITapGestureRecognizer *)tapToPopGesture
+{
+    if (_tapToPopGesture == nil) {
+        _tapToPopGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popSelf)];
+    }
+    return _tapToPopGesture;
+}
+
+#pragma mark - Setter
+
+- (void)setDelegate:(id<FHImageViewerControllerDelegate>)delegate
+{
+    _delegate = delegate;
+    if ([_delegate respondsToSelector:@selector(totalImageNumber)]){
+        //Required
+        _delegateFlag.totalImageNumberFlag = YES;
+    }
+    if ([_delegate respondsToSelector:@selector(imageViewForIndex:)]) {
+        //Required
+        _delegateFlag.imageViewIndexFlag = YES;
+    }
+    if ([_delegate respondsToSelector:@selector(originalSizeImageForIndex:)]) {
+        _delegateFlag.originalImageIndexFlag = YES;
+    }
+}
+
+- (void)setCurrentIndex:(NSInteger)currentIndex
+{
+#warning 处理setter和视图滚动。
+}
+
 - (void)setParallaxDistance:(CGFloat)parallaxDistance
 {
     _parallaxDistance = parallaxDistance;
@@ -63,68 +135,59 @@ static NSString * const kReuseIdentifier = @"imageCell";
     self.viewerCollectionView.cellInterval = _cellInterval;
 }
 
-- (void)defaultInitialize
+- (void)setTapToPopEnabled:(BOOL)tapToPopEnabled
 {
-    [self setupFHImageViewerCollectionView];
-    [self setupResignGestureRecognizer];
+    _tapToPopEnabled = tapToPopEnabled;
+    if(_tapToPopEnabled){
+        //Init the tap gestureRecognizer
+        [self.view addGestureRecognizer:self.tapToPopGesture];
+    }
+    else{
+        //Remove the gestureRecognizer
+        if (_tapToPopGesture != nil) {
+            [self.view removeGestureRecognizer:_tapToPopGesture];
+            _tapToPopGesture = nil;
+        }
+    }
 }
 
+#pragma mark - Getter
+- (FHImageViewerTransition *)transition{
+    //The animation to be used depends on the end of the transition
+    NSIndexPath *currentIndexPath = [NSIndexPath indexPathForRow:self.currentIndex inSection:0];
+    FHImageViewerCell *toViewCell = (FHImageViewerCell *)[self collectionView:self.viewerCollectionView cellForItemAtIndexPath:currentIndexPath];
+    UIImageView *imageView = [_delegate imageViewForIndex:self.currentIndex];
+    if (_isShowing) {
+        _transition = [[FHImageViewerTransition alloc] initWithTranFromView:imageView andTransToView:toViewCell.imageView];
+    }else{
+        _transition = [[FHImageViewerTransition alloc] initWithTranFromView:toViewCell.imageView andTransToView:imageView];
+    }
+    return _transition;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    _isShowing = YES;
 }
 
-- (void)setupFHImageViewerCollectionView{
-    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray:self.imagesArray selectedIndex:self.selectedIndex];
-    self.viewerCollectionView.delegate = self;
-    self.viewerCollectionView.dataSource = self;
-    self.viewerCollectionView.hidePageControl = YES;
-    self.viewerCollectionView.parallaxDistance = self.parallaxDistance;
-    self.viewerCollectionView.cellInterval = self.cellInterval;
-    [self.viewerCollectionView registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kReuseIdentifier];
-    [self.view addSubview:self.viewerCollectionView];
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+//    self.navigationController.delegate = self;
 }
 
-- (void)setupResignGestureRecognizer{
-    UITapGestureRecognizer *resignTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(resignSelf)];
-    [self.view addGestureRecognizer:resignTapGestureRecognizer];
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    _isShowing = NO;
+    self.navigationController.delegate = nil;
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
-#pragma mark <UICollectionViewDataSource>
-
-//- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-//#warning Incomplete implementation, return the number of sections
-//    return 0;
-//}
-//
-//
-//- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-//#warning Incomplete implementation, return the number of items
-//    return 0;
-//}
-//
-//- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-//    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
-//    
-//    // Configure the cell
-//    
-//    return cell;
-//}
 #pragma mark - UICollectionViewDataSource
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -134,13 +197,23 @@ static NSString * const kReuseIdentifier = @"imageCell";
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return self.imagesArray.count;
+    if (_delegateFlag.totalImageNumberFlag) {
+        //return the total image number by delegate;
+        return [_delegate totalImageNumber];
+    }else{
+        return 0;
+    }
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     FHImageViewerCell *imageCell = [collectionView dequeueReusableCellWithReuseIdentifier:kReuseIdentifier forIndexPath:indexPath];
-    imageCell.image = _imagesArray[indexPath.row];
+    //If delegate implemented method "originalSizeImageForIndex: ", get the original size image,elsewise get the default image.
+    if (_delegateFlag.originalImageIndexFlag) {
+        imageCell.image = [_delegate originalSizeImageForIndex:indexPath.row];
+    }else{
+        imageCell.image = [_delegate imageViewForIndex:indexPath.row].image;
+    }
     imageCell.parallaxDistance = self.parallaxDistance;
     return imageCell;
 }
@@ -159,45 +232,22 @@ static NSString * const kReuseIdentifier = @"imageCell";
             [cell setParallaxValue:value];
         }
     }
-    //pageControl处理
+    //pageControl
     NSInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
     self.viewerCollectionView.pageControl.currentPage = index;
-    self.selectedIndex = index;
+    self.currentIndex = index;
 }
 
 #pragma mark - PrivateMethod
-- (void)resignSelf
+- (void)popSelf
 {
-    [self.navigationController popViewControllerAnimated:YES];
-}
-/*
-// Uncomment this method to specify if the specified item should be highlighted during tracking
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldHighlightItemAtIndexPath:(NSIndexPath *)indexPath {
-	return YES;
-}
-*/
-
-/*
-// Uncomment this method to specify if the specified item should be selected
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-*/
-
-/*
-// Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-- (BOOL)collectionView:(UICollectionView *)collectionView shouldShowMenuForItemAtIndexPath:(NSIndexPath *)indexPath {
-	return NO;
+    if (self.tapToPopEnabled) {
+        [self.navigationController popViewControllerAnimated:YES];
+    }else{
+        
+    }
 }
 
-- (BOOL)collectionView:(UICollectionView *)collectionView canPerformAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-	return NO;
-}
-
-- (void)collectionView:(UICollectionView *)collectionView performAction:(SEL)action forItemAtIndexPath:(NSIndexPath *)indexPath withSender:(id)sender {
-	
-}
-*/
 #pragma mark - PublicMethod
 - (void)showInViewController:(UIViewController *)viewController withAnimated:(BOOL)animated
 {

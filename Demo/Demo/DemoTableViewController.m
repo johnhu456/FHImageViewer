@@ -9,11 +9,13 @@
 #import "DemoTableViewController.h"
 #import "FHImageViewerController.h"
 
-@interface DemoTableViewController ()<UITableViewDelegate,UITableViewDataSource,UINavigationControllerDelegate>
+@interface DemoTableViewController ()<UITableViewDelegate,UITableViewDataSource,UINavigationControllerDelegate,FHImageViewerControllerDelegate>
 
 @property (nonatomic, strong) NSArray *imageDataArray;
 
 @property (nonatomic, strong) UITableView *tableView;
+
+@property (nonatomic, strong) FHImageViewerController *vc;
 
 @end
 
@@ -34,8 +36,24 @@ static CGFloat const kCellHeight = 100.f;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupTableView];
-    self.navigationController.delegate = self;
     // Do any additional setup after loading the view.
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    self.navigationController.delegate = self;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.navigationController.delegate = self;
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
 }
 
 - (void)setupTableView
@@ -73,18 +91,11 @@ static CGFloat const kCellHeight = 100.f;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSArray *imageArray = @[ImageInName(self.imageDataArray[0]),
-                            ImageInName(self.imageDataArray[1]),
-                            ImageInName(self.imageDataArray[2]),
-                            ImageInName(self.imageDataArray[3]),
-                            ImageInName(self.imageDataArray[4]),
-                            ImageInName(self.imageDataArray[5]),
-                            ImageInName(self.imageDataArray[6])
-                            ];
-    FHImageViewerController *vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame imagesArray:imageArray selectedIndex:indexPath.row];
-    vc.parallaxDistance = 20.f;
-    vc.cellInterval = 10.f;
-    [vc showInViewController:self withAnimated:YES];
+    self.vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame currentIndex:indexPath.row];
+    self.vc.parallaxDistance = 20.f;
+    self.vc.cellInterval = 10.f;
+    self.vc.delegate = self;
+    [self.vc showInViewController:self withAnimated:YES];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -92,18 +103,50 @@ static CGFloat const kCellHeight = 100.f;
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - FHImageViewerControllerDelegate
+- (UIImageView *)imageViewForIndex:(NSInteger)index
+{
+    return [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]].imageView;
+}
+
+- (NSInteger)totalImageNumber
+{
+    NSArray *images = @[ImageInName(self.imageDataArray[0]),
+                            ImageInName(self.imageDataArray[1]),
+                            ImageInName(self.imageDataArray[2]),
+                            ImageInName(self.imageDataArray[3]),
+                            ImageInName(self.imageDataArray[4]),
+                            ImageInName(self.imageDataArray[5]),
+                            ImageInName(self.imageDataArray[6])
+                            ];
+    return images.count;
+}
+
+- (UIImage *)originalSizeImageForIndex:(NSInteger)index
+{
+    NSArray *images = @[ImageInName(self.imageDataArray[0]),
+                        ImageInName(self.imageDataArray[1]),
+                        ImageInName(self.imageDataArray[2]),
+                        ImageInName(self.imageDataArray[3]),
+                        ImageInName(self.imageDataArray[4]),
+                        ImageInName(self.imageDataArray[5]),
+                        ImageInName(self.imageDataArray[6])
+                        ];
+    return images[index];
+}
+
+
 - (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController animationControllerForOperation:(UINavigationControllerOperation)operation fromViewController:(UIViewController *)fromVC toViewController:(UIViewController *)toVC
 {
-    if ([toVC isKindOfClass:[FHImageViewerController class]]) {
-        UITableViewCell *transFromCell = [self.tableView cellForRowAtIndexPath:[self.tableView indexPathForSelectedRow]];
-        return [[FHImageViewerTransition alloc] initWithTranFromView:transFromCell.imageView];
-    }else if ([fromVC isKindOfClass:[FHImageViewerController class]]){
-        FHImageViewerController *imageViewController = (FHImageViewerController *)fromVC;
-        NSIndexPath *selectedIndexPath = [NSIndexPath indexPathForRow:imageViewController.selectedIndex inSection:0];
-        FHImageViewerCell *transFromCell = (FHImageViewerCell *)[imageViewController.viewerCollectionView cellForItemAtIndexPath:selectedIndexPath];
-        return [[FHImageViewerTransition alloc] initWithTranFromView:transFromCell.imageView];
-    }else
+
+    if ([toVC isKindOfClass:[FHImageViewerController class]]){
+            NSLog(@"==========");
+           return self.vc.transition;
+    }else{
         return nil;
+    }
+
+//    return nil;
 }
 
 /*
