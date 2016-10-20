@@ -48,7 +48,6 @@ static CGFloat kPageControlHeight = 25.f;
     self.showsHorizontalScrollIndicator = NO;
     self.frame = CGRectMake(0, 0, self.frame.size.width + _cellInterval, self.frame.size.height);
     [self registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kFHImageViewerCellReuseIdentifier];
-    [self setupUILongPressGestureRecognizer];
 }
 
 #pragma mark - LazyInit
@@ -64,12 +63,6 @@ static CGFloat kPageControlHeight = 25.f;
         [self.superview insertSubview:_pageControl aboveSubview:self];
     }
     return _pageControl;
-}
-
-- (void)setupUILongPressGestureRecognizer
-{
-    UILongPressGestureRecognizer *longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGestureRecognizer:)];
-    [self addGestureRecognizer:longPressGestureRecognizer];
 }
 
 - (void)setupPageControl
@@ -115,13 +108,4 @@ static CGFloat kPageControlHeight = 25.f;
 - (void)positionTheFocus{
     self.contentOffset = CGPointMake(self.frame.size.width * _currentIndex, 0);
 }
-
-#pragma mark - UIGestureRecognizer
-- (void)handleLongPressGestureRecognizer:(UILongPressGestureRecognizer *)pressGestureRecognizer
-{
-//    if ([self.imageViewerDelegate respondsToSelector:@selector(handleLongPressGestureRecognizer:withCurrentImage:)]){
-//        [self.imageViewerDelegate handleLongPressGestureRecognizer:pressGestureRecognizer withCurrentImage:self.imagesArray[self.pageControl.currentPage]];
-//    }
-}
-
 @end

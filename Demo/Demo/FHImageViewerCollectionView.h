@@ -9,19 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "FHImageViewerCell.h"
 
-@protocol FHImageViewerCollectionDelegate <NSObject>
-
-#warning 功能待加
-- (void)handleLongPressGestureRecognizer:(UILongPressGestureRecognizer *)pressGestureRecognizer withCurrentImage:(UIImage *)image;
-
-@end
 
 extern NSString *const kFHImageViewerCellReuseIdentifier;
 
 @interface FHImageViewerCollectionView : UICollectionView
-
-#warning wait to use
-@property (nonatomic, weak) id<FHImageViewerCollectionDelegate> imageViewerDelegate;
 
 #pragma mark - User Interface
 
