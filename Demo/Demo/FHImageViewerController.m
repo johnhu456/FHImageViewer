@@ -44,7 +44,8 @@ static NSString * const kReuseIdentifier = @"imageCell";
     if (self = [super init]) {
         self.view.frame = frame;
         self.currentIndex = currentIndex;
-        self.tapToPopEnabled = YES;   /**Default is YES*/
+        self.tapToPopEnabled = YES;
+        self.pageControlEnabled = YES;  /**Default is YES*/
         [self defaultInitialize];
     }
     return self;
@@ -68,21 +69,13 @@ static NSString * const kReuseIdentifier = @"imageCell";
 
 - (void)defaultInitialize
 {
-    [self setupFHImageViewerCollectionView];
     [self setupResignGestureRecognizer];
 }
 
 //Set the FHImageViewCollectionView
 - (void)setupFHImageViewerCollectionView{
-#warning to change
-    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray: @[ImageInName(@"0"),
-                                                                                                                     ImageInName(@"1"),
-                                                                                                                     ImageInName(@"2"),
-                                                                                                                     ImageInName(@"3"),
-                                                                                                                     ImageInName(@"4"),
-                                                                                                                     ImageInName(@"5"),
-                                                                                                                     ImageInName(@"6")
-                                                                                                                     ] selectedIndex:self.currentIndex];
+    NSUInteger totalCount = [_delegate totalImageNumber];
+    self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame currentIndex:self.currentIndex totalCount:totalCount];
     self.viewerCollectionView.delegate = self;
     self.viewerCollectionView.dataSource = self;
     [self.viewerCollectionView registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kReuseIdentifier];
@@ -109,6 +102,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
 - (void)setDelegate:(id<FHImageViewerControllerDelegate>)delegate
 {
     _delegate = delegate;
+    [self setupFHImageViewerCollectionView];
     if ([_delegate respondsToSelector:@selector(totalImageNumber)]){
         //Required
         _delegateFlag.totalImageNumberFlag = YES;
@@ -130,13 +124,18 @@ static NSString * const kReuseIdentifier = @"imageCell";
 - (void)setParallaxDistance:(CGFloat)parallaxDistance
 {
     _parallaxDistance = parallaxDistance;
-    self.viewerCollectionView.parallaxDistance = _parallaxDistance;
 }
 
 - (void)setCellInterval:(CGFloat)cellInterval
 {
     _cellInterval = cellInterval;
     self.viewerCollectionView.cellInterval = _cellInterval;
+}
+
+- (void)setPageControlEnabled:(BOOL)pageControlEnabled
+{
+    _pageControlEnabled = pageControlEnabled;
+    self.viewerCollectionView.hidePageControl = !_pageControlEnabled;
 }
 
 - (void)setTapToPopEnabled:(BOOL)tapToPopEnabled

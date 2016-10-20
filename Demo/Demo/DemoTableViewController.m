@@ -92,8 +92,9 @@ static CGFloat const kCellHeight = 100.f;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     self.vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame currentIndex:indexPath.row];
-    self.vc.parallaxDistance = 20.f;
+//    self.vc.parallaxDistance = 20.f;
     self.vc.cellInterval = 10.f;
+    self.vc.pageControlEnabled = YES;
     self.vc.delegate = self;
     self.vc.animationDuration = 0.5f;
     [self.vc showInViewController:self withAnimated:YES];
@@ -112,15 +113,7 @@ static CGFloat const kCellHeight = 100.f;
 
 - (NSInteger)totalImageNumber
 {
-    NSArray *images = @[ImageInName(self.imageDataArray[0]),
-                            ImageInName(self.imageDataArray[1]),
-                            ImageInName(self.imageDataArray[2]),
-                            ImageInName(self.imageDataArray[3]),
-                            ImageInName(self.imageDataArray[4]),
-                            ImageInName(self.imageDataArray[5]),
-                            ImageInName(self.imageDataArray[6])
-                            ];
-    return images.count;
+    return 7;
 }
 
 - (UIImage *)originalSizeImageForIndex:(NSInteger)index

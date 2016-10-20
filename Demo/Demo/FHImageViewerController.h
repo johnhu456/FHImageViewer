@@ -54,6 +54,11 @@
 
 @property (nonatomic, weak) id<FHImageViewerControllerDelegate>delegate;
 
+/**
+    Mainly used to display the image, the specific can be seen in FHImageViewerCollectionView.
+ 
+    主要用来展示图片的collectionView，具体可以见类：FHImageViewerCollectionView。
+ */
 @property (nonatomic, strong, readonly) FHImageViewerCollectionView *viewerCollectionView;
 
 #pragma mark - UserInterface
@@ -67,9 +72,9 @@
     设置parallaxDistance可以改变视差效果的强弱。
  */
 @property (nonatomic, assign) CGFloat parallaxDistance;
-/** Distance between 2 images
+/** Distance between 2 images,default is 10;
  
-    两张图片的间距
+    两张图片的间距,默认为10.
  */
 @property (nonatomic, assign) CGFloat cellInterval;
 /**
@@ -78,6 +83,13 @@
     动画的持续时间
  */
 @property (nonatomic, assign) NSTimeInterval animationDuration;
+
+/**
+    Whether to display pagecontrol
+    
+    是否显示PageControl
+ */
+@property (nonatomic, assign) BOOL pageControlEnabled;
 
 /**
     Tap to pop, default is on

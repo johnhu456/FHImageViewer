@@ -37,9 +37,9 @@
     动画的持续时间,只读.
     可以通过设置FHImageViewerController的animationDuration来设定这个属性。
  */
-
 @property (nonatomic, assign, readonly) NSTimeInterval animationDuration;
 
+#pragma mark - Init Method
 - (instancetype)initWithTranFromView:(UIImageView *)transFromView
                          transToView:(UIImageView *)transToView
                    animationDuration:(NSTimeInterval)animationDuration;

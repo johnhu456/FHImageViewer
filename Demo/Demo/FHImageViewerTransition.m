@@ -26,6 +26,7 @@
     return self;
 }
 
+#pragma mark - UIViewControllerAnimatedTransitioning
 - (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext
 {
     return self.animationDuration;
