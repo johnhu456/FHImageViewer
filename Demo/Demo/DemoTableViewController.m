@@ -95,6 +95,7 @@ static CGFloat const kCellHeight = 100.f;
     self.vc.parallaxDistance = 20.f;
     self.vc.cellInterval = 10.f;
     self.vc.delegate = self;
+    self.vc.animationDuration = 0.5f;
     [self.vc showInViewController:self withAnimated:YES];
 }
 
@@ -139,12 +140,12 @@ static CGFloat const kCellHeight = 100.f;
 - (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController animationControllerForOperation:(UINavigationControllerOperation)operation fromViewController:(UIViewController *)fromVC toViewController:(UIViewController *)toVC
 {
 
-    if ([toVC isKindOfClass:[FHImageViewerController class]]){
+//    if ([toVC isKindOfClass:[FHImageViewerController class]]){
             NSLog(@"==========");
            return self.vc.transition;
-    }else{
-        return nil;
-    }
+//    }else{
+//        return nil;
+//    }
 
 //    return nil;
 }

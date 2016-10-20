@@ -58,7 +58,7 @@
 
 #pragma mark - UserInterface
 
-@property (nonatomic, assign, readonly) NSInteger currentIndex;
+@property (nonatomic, assign, readonly) NSUInteger currentIndex;
 
 /** Parallax is the effect whereby the position or direction of an object appears to differ when viewed from different positions
     you could set the property 'parallaxDistance' to change the effect of strength.
@@ -67,11 +67,17 @@
     设置parallaxDistance可以改变视差效果的强弱。
  */
 @property (nonatomic, assign) CGFloat parallaxDistance;
-/** distance between 2 images
+/** Distance between 2 images
  
     两张图片的间距
  */
 @property (nonatomic, assign) CGFloat cellInterval;
+/**
+    The duration of the animation
+ 
+    动画的持续时间
+ */
+@property (nonatomic, assign) NSTimeInterval animationDuration;
 
 /**
     Tap to pop, default is on
@@ -86,23 +92,6 @@
     一个用来描述转场动画的对象，只读。
  */
 @property (nonatomic, strong, readonly) FHImageViewerTransition *transition;
-
-#warning to delete
-/** The beginning UIView of the animation,
-    you should exactly assign the UIImageView where you want starting transition to the transFromViw property.
-    Because the FHImageViewerController needs to know exactly which UIImageView the animation starts,
-    including it's frame and image size, otherwise the animation will be inaccurate.
-    For example, pass the imageView in selelcted cell to transFromView:
-    e.g.
-    self.fhImageViewerController.transFromView = selectedCell.imageView;
- 
-    动画的起始View（一般都是UIImageView）
-    需要明确的指定你希望动画从哪个UIImageView开始，并且用这个UIImageView给transFromView属性赋值。
-    因为FHImageViewerController需要确切知道动画从哪里开始的，需要这个UIImageView的信息,包括frame和图片大小，否则动画将会不准确.
-    举例，当一个cell中imageView被点击选中的时候：
-    self.fhImageViewerController.transFromView = selectedCell.imageView;
-*/
-@property (nonatomic, weak) UIImageView *transFromView;
 
 #pragma mark - Public Method
 - (instancetype)initWithFrame:(CGRect)frame currentIndex:(NSInteger)currentIndex;

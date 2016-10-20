@@ -9,27 +9,26 @@
 #import "FHImageViewerTransition.h"
 
 @interface FHImageViewerTransition()
-{
-    CGRect _lastFromRect;
-}
+
+@property (nonatomic, assign, readwrite) NSTimeInterval animationDuration;
 
 @end
-static CGFloat const kAnimationDuration = 0.5f;
-static CGFloat const kNavigationHeight = 64.f;
+
 @implementation FHImageViewerTransition
 
-- (instancetype)initWithTranFromView:(UIImageView *)transFromView andTransToView:(UIImageView *)transToView
+- (instancetype)initWithTranFromView:(UIImageView *)transFromView transToView:(UIImageView *)transToView animationDuration:(NSTimeInterval)animationDuration
 {
     if (self = [super init]) {
         self.transFromView = transFromView;
         self.transToView = transToView;
+        self.animationDuration = animationDuration;
     }
     return self;
 }
 
 - (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext
 {
-    return kAnimationDuration;
+    return self.animationDuration;
 }
 
 - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
@@ -40,19 +39,7 @@ static CGFloat const kNavigationHeight = 64.f;
 
     //Get the beginning UIView of transition
     if (self.transFromView != nil) {
-        UIView *tempView;
-        if ([self.transFromView isKindOfClass:[UITableView class]]) {
-            UITableView *transFromTableView = (UITableView *)self.transFromView;
-            UITableViewCell *transiFromCell = [transFromTableView cellForRowAtIndexPath:[transFromTableView indexPathForSelectedRow]];
-            tempView = transiFromCell;
-        }
-        else if ([self.transFromView isKindOfClass:[UICollectionView class]]){
-            UICollectionView *transFromCollectionView = (UICollectionView *)self.transFromView;
-            UICollectionViewCell *transFromCell = [transFromCollectionView cellForItemAtIndexPath:[[transFromCollectionView indexPathsForSelectedItems] firstObject]];
-            tempView = transFromCell;
-        }else{
-            tempView = self.transFromView;
-        }
+        UIView *tempView = self.transFromView;
     
         //Get rootView
         UIView *rootView = tempView;
@@ -62,46 +49,38 @@ static CGFloat const kNavigationHeight = 64.f;
                 break;
             }
         }
-        UIView * snapShotView = [self.transFromView snapshotViewAfterScreenUpdates:NO];
-        snapShotView.frame = [containerView convertRect:self.transFromView.frame fromView:rootView];
+        UIView * snapShotView = [tempView snapshotViewAfterScreenUpdates:NO];
+        snapShotView.frame = [containerView convertRect:tempView.frame fromView:rootView];
         self.transFromView.hidden = YES;
-
-//        self.transFromView.frame = [containerView convertRect:tempView.frame fromView:rootView];
-        
-        //Set ending view
-//        self.transToView.frame = [transitionContext finalFrameForViewController:toVC];
         toVC.view.alpha = 0;
-        //Add two views to containView
         
-        [containerView addSubview:toVC.view];
+        //Add two views to containView
         [containerView addSubview:snapShotView];
+        [containerView addSubview:toVC.view];
 
-        //Calculate the ending View's size according to the image size
-//        UIWindow *window = [UIApplication sharedApplication].windows.lastObject;
-//        CGFloat imageHeight = window.frame.size.width * self.transFromView.image.size.height/self.transFromView.image.size.width;
-//        CGRect endingSize = self.transToView.frame;
-//        if (toVC.navigationController && toVC.navigationController.navigationBarHidden == NO){
-//            endingSize = CGRectMake(0, (window.frame.size.height - imageHeight + kNavigationHeight)/2.f, window.frame.size.width , imageHeight);
-//        }else{
-//            endingSize = CGRectMake(0, (window.frame.size.height - imageHeight)/2.f,  window.frame.size.width, imageHeight);
-//        }
- 
-        CGFloat scale = self.transToView.image.size.height/self.transToView.image.size.width/1.f;
-        CGFloat newHeight =(self.transToView.frame.size.width) *scale;
-        CGRect endFrame = CGRectMake(-20, (self.transToView.frame.size.height - newHeight)/2.f, self.transToView.frame.size.width, newHeight);
+#warning to recalculator rect;
+        CGRect endFrame = self.transToView.frame;
+        if (self.transToView.contentMode == UIViewContentModeScaleAspectFit) {
+            CGFloat scale = self.transToView.image.size.height/self.transToView.image.size.width/1.f;
+            CGFloat newHeight = (self.transToView.frame.size.width) *scale;
+            endFrame = CGRectMake(0, (self.transToView.frame.size.height - newHeight)/2.f, self.transToView.frame.size.width, newHeight);
+        }
+        
         //Animation
+        @weakify(snapShotView)
+        @weakify(toVC)
+        @WEAKSELF;
         [UIView animateWithDuration:[self transitionDuration:transitionContext] animations:^{
-            toVC.view.alpha = 1;
-            snapShotView.frame = endFrame;
+            weak_snapShotView.frame = endFrame;
         } completion:^(BOOL finished) {
-            self.transFromView.hidden = NO;
-            [snapShotView removeFromSuperview];
+            weakSelf.transFromView.hidden = NO;
+            weak_toVC.view.alpha = 1;
+            [weak_snapShotView removeFromSuperview];
         }];
         [transitionContext completeTransition:!transitionContext.transitionWasCancelled];
     }else{
         return;
     }
-    
 }
 
 @end

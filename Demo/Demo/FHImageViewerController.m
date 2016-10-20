@@ -9,6 +9,7 @@
 #import "FHImageViewerController.h"
 #import "FHImageViewerCell.h"
 
+
 @interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate>
 /**Delegate Flag*/
 {
@@ -19,12 +20,13 @@
     }_delegateFlag;
     
     BOOL _isShowing;
+    NSUInteger _selectedIndex;
 }
 
 #pragma mark - Public Property
 @property (nonatomic, strong, readwrite) FHImageViewerCollectionView *viewerCollectionView;
 
-@property (nonatomic, assign, readwrite) NSInteger currentIndex;
+@property (nonatomic, assign, readwrite) NSUInteger currentIndex;
 
 @property (nonatomic, strong, readwrite) FHImageViewerTransition *transition;
 
@@ -42,6 +44,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
     if (self = [super init]) {
         self.view.frame = frame;
         self.currentIndex = currentIndex;
+        self.tapToPopEnabled = YES;   /**Default is YES*/
         [self defaultInitialize];
     }
     return self;
@@ -71,6 +74,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
 
 //Set the FHImageViewCollectionView
 - (void)setupFHImageViewerCollectionView{
+#warning to change
     self.viewerCollectionView = [[FHImageViewerCollectionView alloc] initWithFrame:self.view.frame andImagesArray: @[ImageInName(@"0"),
                                                                                                                      ImageInName(@"1"),
                                                                                                                      ImageInName(@"2"),
@@ -118,9 +122,9 @@ static NSString * const kReuseIdentifier = @"imageCell";
     }
 }
 
-- (void)setCurrentIndex:(NSInteger)currentIndex
+- (void)setCurrentIndex:(NSUInteger)currentIndex
 {
-#warning 处理setter和视图滚动。
+    _currentIndex = currentIndex;
 }
 
 - (void)setParallaxDistance:(CGFloat)parallaxDistance
@@ -158,9 +162,9 @@ static NSString * const kReuseIdentifier = @"imageCell";
     FHImageViewerCell *toViewCell = (FHImageViewerCell *)[self collectionView:self.viewerCollectionView cellForItemAtIndexPath:currentIndexPath];
     UIImageView *imageView = [_delegate imageViewForIndex:self.currentIndex];
     if (_isShowing) {
-        _transition = [[FHImageViewerTransition alloc] initWithTranFromView:imageView andTransToView:toViewCell.imageView];
+        _transition = [[FHImageViewerTransition alloc] initWithTranFromView:imageView transToView:toViewCell.imageView animationDuration:self.animationDuration];
     }else{
-        _transition = [[FHImageViewerTransition alloc] initWithTranFromView:toViewCell.imageView andTransToView:imageView];
+        _transition = [[FHImageViewerTransition alloc] initWithTranFromView:toViewCell.imageView transToView:imageView animationDuration:self.animationDuration];
     }
     return _transition;
 }
@@ -174,7 +178,6 @@ static NSString * const kReuseIdentifier = @"imageCell";
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-//    self.navigationController.delegate = self;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -235,7 +238,6 @@ static NSString * const kReuseIdentifier = @"imageCell";
     //pageControl
     NSInteger index = scrollView.contentOffset.x/scrollView.frame.size.width;
     self.viewerCollectionView.pageControl.currentPage = index;
-    self.currentIndex = index;
 }
 
 #pragma mark - PrivateMethod
