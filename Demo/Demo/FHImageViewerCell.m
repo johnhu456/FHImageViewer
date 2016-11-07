@@ -8,13 +8,15 @@
 
 #import "FHImageViewerCell.h"
 
-@interface FHImageViewerCell()<UIScrollViewDelegate>
+@interface FHImageViewerCell()<UIScrollViewDelegate,UIGestureRecognizerDelegate>
 {
     UIScrollView *_imageScrollView;
     UIView *_imageMaskView;
-    UITapGestureRecognizer *_doubleTapGestureRecognizer;
     BOOL _enlarge;
 }
+@property (nonatomic, strong, readwrite) UITapGestureRecognizer *doubleTapGestureRecognizer;
+
+@property (nonatomic, strong) UITapGestureRecognizer *oneTapGestureRecognizer;
 
 @end
 
@@ -51,8 +53,10 @@
     
     _imageScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, window.frame.size.width, self.bounds.size.height)];
     _imageScrollView.delegate = self;
+    _imageScrollView.canCancelContentTouches = NO;
     _imageScrollView.maximumZoomScale = 2.f;
     _imageScrollView.minimumZoomScale = 1.f;
+    _imageScrollView.bouncesZoom = NO;
     _imageScrollView.showsVerticalScrollIndicator = _imageScrollView.showsVerticalScrollIndicator = NO;
     _imageScrollView.clipsToBounds = YES;
 
@@ -60,7 +64,9 @@
     _imageMaskView.clipsToBounds = YES;
     
     _imageView = [[UIImageView alloc] initWithFrame:_imageScrollView.frame];
-    _imageView.frame = CGRectMake(- _parallaxDistance, 0, _imageScrollView.bounds.size.width + 2 * _parallaxDistance, _imageView.frame.size.height);
+    _imageView.userInteractionEnabled = YES;
+    _imageView.frame = CGRectMake(0, 0, _imageScrollView.bounds.size.width, _imageScrollView.frame.size.height);
+    _imageView.center = _imageMaskView.center;
     _imageView.contentMode = UIViewContentModeScaleAspectFit;
     _imageView.clipsToBounds = YES;
     
@@ -68,52 +74,61 @@
     [_imageMaskView addSubview:_imageView];
     [self.contentView addSubview:_imageScrollView];
     
-    _doubleTapGestureRecognizer  = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTapGestureRecognizer:)];
-    _doubleTapGestureRecognizer.numberOfTapsRequired = 2;
-    [_imageScrollView addGestureRecognizer:_doubleTapGestureRecognizer];
+    self.oneTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleOneTapGestureRecognizer:)];
+    self.oneTapGestureRecognizer.numberOfTapsRequired = 1;
+    [self addGestureRecognizer:self.oneTapGestureRecognizer];
+    
+    self.doubleTapGestureRecognizer  = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTapGestureRecognizer:)];
+    self.doubleTapGestureRecognizer.numberOfTapsRequired = 2;
+    self.doubleTapGestureRecognizer.delegate = self;
+    [self addGestureRecognizer:self.doubleTapGestureRecognizer];
+    [self.oneTapGestureRecognizer requireGestureRecognizerToFail:self.doubleTapGestureRecognizer];
 }
 
+#pragma mark - Setter
 - (void)setParallaxDistance:(CGFloat)parallaxDistance
 {
     _parallaxDistance = parallaxDistance;
-    _imageView.frame = CGRectMake(-_parallaxDistance, 0, _imageScrollView.bounds.size.width + 2 * _parallaxDistance, _imageView.frame.size.height);
 }
 
 - (void)setImage:(UIImage *)image
 {
     _image = image;
     _imageView.image = image;
+    CGFloat newHeight = _imageView.frame.size.width * image.scale;
+    _imageView.frame = CGRectMake(_imageView.frame.origin.x, (self.frame.size.height - newHeight)/2.f, _imageView.frame.size.width , _imageView.frame.size.width * image.scale);
     [_imageScrollView setZoomScale:1.f animated:NO];
 }
 
+- (void)setOnceTapBlock:(void (^)())onceTapBlock {
+    _onceTapBlock = onceTapBlock;
+}
+
 #pragma mark - TapGestureRecognizer
-- (void)handleDoubleTapGestureRecognizer:(UITapGestureRecognizer *)tapGR
-{
-    CGPoint center = [tapGR locationInView:_imageScrollView];
+- (void)handleOneTapGestureRecognizer:(UITapGestureRecognizer *)tapGR {
+    if (self.onceTapBlock) {
+        self.onceTapBlock();
+    }
+}
+
+- (void)handleDoubleTapGestureRecognizer:(UITapGestureRecognizer *)tapGR {
+    CGPoint center = [tapGR locationInView:_imageView];
     if (_enlarge) {
-        [_imageScrollView zoomToRect:[self zoomRectForScale:1.f withCenter:center] animated:YES];
+//        [_imageScrollView zoomToRect:[self zoomRectForScale:1.f withCenter:center] animated:YES];
+        [_imageScrollView setZoomScale:1.f animated:YES];
         _enlarge = NO;
     }
     else{
         [_imageScrollView zoomToRect:[self zoomRectForScale:2.f withCenter:center] animated:YES];
+        [_imageScrollView setZoomScale:2.f animated:YES];
         _enlarge = YES;
     }
-
 }
 
 #pragma mark - ScrollViewDelegate
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
     return _imageMaskView;
-}
-
-- (void)scrollViewDidZoom:(UIScrollView *)scrollView
-{
-    CGFloat imageScale = _image.size.height/_image.size.width/1.f;
-    scrollView.contentSize = CGSizeMake(scrollView.contentSize.width, scrollView.contentSize.width * imageScale);
-    CGFloat offsetX = (scrollView.bounds.size.width > scrollView.contentSize.width)?(scrollView.bounds.size.width - scrollView.contentSize.width)/2 : 0.0;
-    CGFloat offsetY = (scrollView.bounds.size.height > scrollView.contentSize.height)?(scrollView.bounds.size.height - scrollView.contentSize.height)/2 : 0.0;
-    _imageMaskView.center = CGPointMake(scrollView.contentSize.width/2 + offsetX,scrollView.contentSize.height/2 + offsetY);
 }
 
 #pragma mark - PublicMethod
@@ -139,4 +154,15 @@
     _imageView.transform = CGAffineTransformMakeTranslation(0, 0);
 }
 
+#pragma mark - UIGestureRecognizer
+//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+//    return YES;
+//}
+
+//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+//    if (otherGestureRecognizer == _imageScrollView.panGestureRecognizer) {
+//        return YES;
+//    }
+//    return YES;
+//}
 @end

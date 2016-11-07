@@ -35,6 +35,7 @@ static CGFloat kPageControlHeight = 25.f;
     flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     if (self = [super initWithFrame:frame collectionViewLayout:flowLayout]) {
         _totalCount = totalCount;
+        _cellInterval = 10.f;
         self.hidePageControl = NO; /**Default is NO*/
         self.currentIndex = currentIndex;
         [self initialize];
@@ -47,6 +48,8 @@ static CGFloat kPageControlHeight = 25.f;
     self.pagingEnabled = YES;
     self.showsHorizontalScrollIndicator = NO;
     self.frame = CGRectMake(0, 0, self.frame.size.width + _cellInterval, self.frame.size.height);
+    UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout *)self.collectionViewLayout;
+    flowLayout.itemSize = CGSizeMake(self.frame.size.width, self.frame.size.height);
     [self registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kFHImageViewerCellReuseIdentifier];
 }
 
@@ -58,6 +61,7 @@ static CGFloat kPageControlHeight = 25.f;
         _pageControl.frame = CGRectMake(0, self.frame.size.height - kPageControlHeight - kPageControlInsideBottom, self.frame.size.width, kPageControlHeight);
         _pageControl.numberOfPages = _totalCount;
         _pageControl.currentPage = _currentIndex;
+        _pageControl.userInteractionEnabled = NO;
         _pageControl.pageIndicatorTintColor = [UIColor colorWithWhite:1 alpha:0.5];
         _pageControl.currentPageIndicatorTintColor = [UIColor whiteColor];
         [self.superview insertSubview:_pageControl aboveSubview:self];

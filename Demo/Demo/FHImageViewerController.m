@@ -10,7 +10,7 @@
 #import "FHImageViewerCell.h"
 
 
-@interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate>
+@interface FHImageViewerController ()<UICollectionViewDelegate,UICollectionViewDataSource,UINavigationControllerDelegate,UIGestureRecognizerDelegate>
 /**Delegate Flag*/
 {
     struct{
@@ -30,8 +30,6 @@
 
 @property (nonatomic, strong, readwrite) FHImageViewerTransition *transition;
 
-#pragma mark - Private Property
-@property (nonatomic, strong) UITapGestureRecognizer *tapToPopGesture;
 @end
 
 @implementation FHImageViewerController
@@ -69,7 +67,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
 
 - (void)defaultInitialize
 {
-    [self setupResignGestureRecognizer];
+//    [self setupResignGestureRecognizer];
 }
 
 //Set the FHImageViewCollectionView
@@ -80,21 +78,6 @@ static NSString * const kReuseIdentifier = @"imageCell";
     self.viewerCollectionView.dataSource = self;
     [self.viewerCollectionView registerClass:[FHImageViewerCell class] forCellWithReuseIdentifier:kReuseIdentifier];
     [self.view addSubview:self.viewerCollectionView];
-}
-
-//Add a tap gestureRecognizer, tap to pop
-- (void)setupResignGestureRecognizer{
-    UITapGestureRecognizer *resignTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popSelf)];
-    [self.view addGestureRecognizer:resignTapGestureRecognizer];
-}
-
-#pragma mark - Lazt Init
-- (UITapGestureRecognizer *)tapToPopGesture
-{
-    if (_tapToPopGesture == nil) {
-        _tapToPopGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(popSelf)];
-    }
-    return _tapToPopGesture;
 }
 
 #pragma mark - Setter
@@ -138,22 +121,6 @@ static NSString * const kReuseIdentifier = @"imageCell";
     self.viewerCollectionView.hidePageControl = !_pageControlEnabled;
 }
 
-- (void)setTapToPopEnabled:(BOOL)tapToPopEnabled
-{
-    _tapToPopEnabled = tapToPopEnabled;
-    if(_tapToPopEnabled){
-        //Init the tap gestureRecognizer
-        [self.view addGestureRecognizer:self.tapToPopGesture];
-    }
-    else{
-        //Remove the gestureRecognizer
-        if (_tapToPopGesture != nil) {
-            [self.view removeGestureRecognizer:_tapToPopGesture];
-            _tapToPopGesture = nil;
-        }
-    }
-}
-
 #pragma mark - Getter
 - (FHImageViewerTransition *)transition{
     //The animation to be used depends on the end of the transition
@@ -168,6 +135,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
     return _transition;
 }
 
+#pragma mark - LifeCycle
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.automaticallyAdjustsScrollViewInsets = NO;
@@ -209,6 +177,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    @WEAKSELF;
     FHImageViewerCell *imageCell = [collectionView dequeueReusableCellWithReuseIdentifier:kReuseIdentifier forIndexPath:indexPath];
     //If delegate implemented method "originalSizeImageForIndex: ", get the original size image,elsewise get the default image.
     if (_delegateFlag.originalImageIndexFlag) {
@@ -217,10 +186,12 @@ static NSString * const kReuseIdentifier = @"imageCell";
         imageCell.image = [_delegate imageViewForIndex:indexPath.row].image;
     }
     imageCell.parallaxDistance = self.parallaxDistance;
+    imageCell.onceTapBlock = ^(){
+        [weakSelf.navigationController popViewControllerAnimated:YES];
+    };
     return imageCell;
 }
 
-#pragma mark <UICollectionViewDelegate>
 #pragma mark - UIScrollviewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -230,7 +201,7 @@ static NSString * const kReuseIdentifier = @"imageCell";
         NSArray *cells = [self.viewerCollectionView visibleCells];
         for (FHImageViewerCell *cell in cells) {
             CGFloat value;
-            value = 40 * (cell.frame.origin.x - self.viewerCollectionView.contentOffset.x)/window.frame.size.width/1.f;
+            value = 70 * (self.viewerCollectionView.contentOffset.x - cell.frame.origin.x)/window.frame.size.width/1.f;
             [cell setParallaxValue:value];
         }
     }
@@ -248,6 +219,12 @@ static NSString * const kReuseIdentifier = @"imageCell";
         
     }
 }
+
+#pragma mark - UIGestureRecognizer
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRequireFailureOfGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
 
 #pragma mark - PublicMethod
 - (void)showInViewController:(UIViewController *)viewController withAnimated:(BOOL)animated

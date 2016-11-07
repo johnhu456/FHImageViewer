@@ -59,12 +59,14 @@
         [containerView addSubview:snapShotView];
         [containerView addSubview:toVC.view];
 
-#warning to recalculator rect;
+        //Calculate end frame
         CGRect endFrame = self.transToView.frame;
         if (self.transToView.contentMode == UIViewContentModeScaleAspectFit) {
-            CGFloat scale = self.transToView.image.size.height/self.transToView.image.size.width/1.f;
+            CGFloat scale = self.transToView.image.size.height/self.transToView.image.size.width;
             CGFloat newHeight = (self.transToView.frame.size.width) *scale;
-            endFrame = CGRectMake(0, (self.transToView.frame.size.height - newHeight)/2.f, self.transToView.frame.size.width, newHeight);
+            CGRect tempFrame = [containerView convertRect:self.transToView.frame toView:toVC.view];
+            endFrame = CGRectMake(tempFrame.origin.x, (toVC.view.frame.size.height - newHeight)/2.f, self.transToView.frame.size.width, newHeight);
+    
         }
         
         //Animation

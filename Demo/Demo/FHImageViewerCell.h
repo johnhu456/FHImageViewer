@@ -17,6 +17,11 @@
 
 @property (nonatomic, strong) UIImageView *imageView;
 
+@property (nonatomic, strong, readonly) UITapGestureRecognizer *doubleTapGestureRecognizer;
+
+@property (nonatomic, copy) void(^onceTapBlock)();
+
 - (void)setParallaxValue:(CGFloat)value;
 
+- (void)setOnceTapBlock:(void (^)())onceTapBlock;
 @end

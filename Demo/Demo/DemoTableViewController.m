@@ -92,7 +92,7 @@ static CGFloat const kCellHeight = 100.f;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     self.vc = [[FHImageViewerController alloc] initWithFrame:self.view.frame currentIndex:indexPath.row];
-//    self.vc.parallaxDistance = 20.f;
+    self.vc.parallaxDistance = 20.f;
     self.vc.cellInterval = 10.f;
     self.vc.pageControlEnabled = YES;
     self.vc.delegate = self;
